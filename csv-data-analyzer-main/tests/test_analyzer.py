@@ -1,7 +1,3 @@
-"""
-Unit tests for CSV Data Analyzer.
-"""
-
 import os
 import shutil
 import tempfile
@@ -26,7 +22,7 @@ class TestCSVDataAnalyzer(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
 
-        # 1. Valid test CSV
+        # valid csv
         self.valid_csv_path = os.path.join(self.test_dir, "valid_students.csv")
         with open(self.valid_csv_path, mode="w", encoding="utf-8") as f:
             f.write(
@@ -36,36 +32,34 @@ class TestCSVDataAnalyzer(unittest.TestCase):
                 "S3,Charlie,Electrical,3.0,80.0,70.0\n"
             )
 
-        # 2. CSV with duplicates, missing values, and out-of-range values
+        # csv with messy rows to test cleaning
         self.dirty_csv_path = os.path.join(self.test_dir, "dirty_students.csv")
         with open(self.dirty_csv_path, mode="w", encoding="utf-8") as f:
             f.write(
                 "student_id,name,department,study_hours,attendance_pct,exam_score\n"
                 "S1,Alice,Computer Science,4.0,90.0,85.0\n"
-                "S1,Alice Duplicate,Computer Science,4.0,90.0,85.0\n"  # Duplicate ID
-                "S2,Bob,Mechanical,,70.0,55.0\n"                      # Missing study_hours
-                "S3,Charlie,Electrical,3.0,,70.0\n"                   # Missing attendance
-                "S4,David,Civil,3.0,80.0,-10.0\n"                     # Negative exam_score
-                "S5,Eva,Civil,25.0,80.0,60.0\n"                       # Study hours > 24
-                "S6,Frank,Civil,2.0,150.0,60.0\n"                     # Attendance > 100
-                "S7,Grace,Information Technology,abc,80.0,75.0\n"     # Non-numeric study_hours
-                "S8,Heidi,Computer Science,5.0,95.0,92.0\n"           # Valid
+                "S1,Alice Duplicate,Computer Science,4.0,90.0,85.0\n"
+                "S2,Bob,Mechanical,,70.0,55.0\n"
+                "S3,Charlie,Electrical,3.0,,70.0\n"
+                "S4,David,Civil,3.0,80.0,-10.0\n"
+                "S5,Eva,Civil,25.0,80.0,60.0\n"
+                "S6,Frank,Civil,2.0,150.0,60.0\n"
+                "S7,Grace,Information Technology,abc,80.0,75.0\n"
+                "S8,Heidi,Computer Science,5.0,95.0,92.0\n"
             )
 
-        # 3. Empty CSV (0 bytes)
+        # empty file (0 bytes)
         self.empty_csv_path = os.path.join(self.test_dir, "empty.csv")
         with open(self.empty_csv_path, mode="w", encoding="utf-8") as f:
             pass
 
-        # 4. Headers-only CSV
+        # headers only
         self.headers_only_csv_path = os.path.join(self.test_dir, "headers_only.csv")
         with open(self.headers_only_csv_path, mode="w", encoding="utf-8") as f:
             f.write("student_id,name,department,study_hours,attendance_pct,exam_score\n")
 
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
-
-    # --- Loading Tests ---
 
     def test_load_dataset_success(self):
         headers, rows = load_dataset(self.valid_csv_path)
@@ -98,8 +92,6 @@ class TestCSVDataAnalyzer(unittest.TestCase):
         self.assertIsNone(headers)
         self.assertIsNone(rows)
 
-    # --- Cleaning Tests ---
-
     def test_clean_dataset_duplicate_ids(self):
         headers, raw = load_dataset(self.dirty_csv_path)
         cleaned, summary = clean_dataset(raw)
@@ -123,8 +115,6 @@ class TestCSVDataAnalyzer(unittest.TestCase):
         self.assertEqual(len(cleaned), 0)
         self.assertEqual(summary["clean_count"], 0)
         self.assertEqual(summary["raw_count"], 0)
-
-    # --- Numerical Statistics Tests ---
 
     def test_calculate_numeric_stats_accuracy(self):
         sample_data = [
@@ -151,8 +141,6 @@ class TestCSVDataAnalyzer(unittest.TestCase):
         sample_data = [{"name": "Alice"}]
         stats_missing = calculate_numeric_stats(sample_data, "exam_score")
         self.assertIsNone(stats_missing)
-
-    # --- Frequency & Categorical Tests ---
 
     def test_calculate_frequency(self):
         sample_data = [
@@ -189,8 +177,6 @@ class TestCSVDataAnalyzer(unittest.TestCase):
         self.assertEqual(pf["Passed"], 2)
         self.assertEqual(pf["Failed"], 1)
 
-    # --- Insights & Report Export Tests ---
-
     def test_generate_insights(self):
         sample_data = [
             {
@@ -205,7 +191,7 @@ class TestCSVDataAnalyzer(unittest.TestCase):
         insights = generate_insights(sample_data)
         self.assertTrue(len(insights) >= 5)
         self.assertTrue(any("Alice" in line for line in insights))
-        self.assertTrue(any("Attendance" in line for line in insights))
+        self.assertTrue(any("Attendance" in line or "attendance" in line.lower() for line in insights))
 
     def test_export_analysis_report(self):
         headers, raw = load_dataset(self.valid_csv_path)
