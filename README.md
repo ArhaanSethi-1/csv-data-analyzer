@@ -1,8 +1,8 @@
 # CSV Data Analyzer
 
-This is a CLI tool I made for my Python class to analyze student CSV data.
+This is a command-line tool I made for my Python class to analyze student CSV data.
 
-It takes a CSV file containing student marks, cleans up missing or bad rows, calculates basic stats like average and median, and prints out insights and grade distributions. You can also save the summary report to a text file.
+It reads the sample CSV, removes rows with missing or invalid values, and calculates statistics and grade distributions. It also prints a few insights, like the pass rate and highest score. The numerical statistics use basic NumPy operations. You can save the summary report to a text file too.
 
 ## Requirements
 You just need Python 3 and numpy:

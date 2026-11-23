@@ -1,6 +1,6 @@
 import csv
 import os
-import statistics
+import numpy as np
 
 REQUIRED_COLUMNS = ['student_id', 'name', 'department', 'study_hours', 'attendance_pct', 'exam_score']
 
@@ -120,15 +120,16 @@ def calculate_numeric_stats(data, column_name):
     if not vals:
         return None
 
+    values = np.array(vals, dtype=float)
     return {
         'column': column_name,
-        'count': len(vals),
-        'mean': round(statistics.mean(vals), 2),
-        'median': round(statistics.median(vals), 2),
-        'min': round(min(vals), 2),
-        'max': round(max(vals), 2),
-        'std_dev': round(statistics.pstdev(vals), 2),
-        'total': round(sum(vals), 2)
+        'count': len(values),
+        'mean': round(float(np.mean(values)), 2),
+        'median': round(float(np.median(values)), 2),
+        'min': round(float(np.min(values)), 2),
+        'max': round(float(np.max(values)), 2),
+        'std_dev': round(float(np.std(values)), 2),
+        'total': round(float(np.sum(values)), 2)
     }
 
 
