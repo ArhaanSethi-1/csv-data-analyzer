@@ -23,7 +23,7 @@ It loads `data/students_data.csv` by default and brings up a menu where you can 
 3. Numerical statistics (mean, median, std dev, min/max for scores, study hours, attendance)
 4. Department & Grade breakdown (grades A to F, pass vs fail)
 5. Key insights (highest/lowest scores, pass rates, attendance warnings)
-6. Data cleaning summary (shows rows dropped because of duplicate IDs or negative marks)
+6. Data cleaning summary (shows how many rows were read, kept, and dropped)
 7. Export report to file (saves to `output/analysis_report.txt`)
 8. Exit
 
