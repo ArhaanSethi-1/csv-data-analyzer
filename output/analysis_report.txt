@@ -1,20 +1,18 @@
 ================================================================================
                 CSV DATA ANALYZER - ACADEMIC ANALYSIS REPORT
 ================================================================================
-Project Name     : CSV Data Analyzer (Python Mini Project)
-Student / Author : Arhaan Sethi
-Dataset Analyzed : students_data.csv
-Computation Mode : Python Standard Library
-================================================================================
+File: students_data.csv
+Author: Arhaan Sethi
+Engine: Python stdlib
 
 1. DATA CLEANING AUDIT
 --------------------------------------------------------------------------------
-Total Raw Records       : 24
-Clean Records Retained  : 20
-Total Records Excluded  : 4
-  - Duplicate Records   : 1
-  - Missing Data Rows   : 2
-  - Invalid / Out-Range : 1
+Raw Records: 24
+Clean Records: 20
+Excluded: 4
+  - Duplicates: 1
+  - Missing: 2
+  - Out of range / invalid: 1
 
 Excluded Records Detail:
   * [CSV Line 22] ID: S104 -> Duplicate student ID 'S104' (first valid entry already kept)
@@ -25,66 +23,61 @@ Excluded Records Detail:
 
 2. NUMERICAL DESCRIPTIVE STATISTICS
 --------------------------------------------------------------------------------
-Column: Final Exam Score (0-100)
-  Count (N)         : 20
-  Mean (Average)    : 71.6
-  Median            : 74.0
-  Minimum           : 40.0
-  Maximum           : 94.0
-  Std Deviation     : 15.59 (Population std dev, ddof=0)
-  Total / Sum       : 1432.0
+Column: Exam Score
+  Count:    20
+  Mean:     71.6
+  Median:   74.0
+  Min:      40.0
+  Max:      94.0
+  Std Dev:  15.59
+  Total:    1432.0
 
-Column: Daily Study Hours (0-24)
-  Count (N)         : 20
-  Mean (Average)    : 3.48
-  Median            : 3.35
-  Minimum           : 1.0
-  Maximum           : 6.0
-  Std Deviation     : 1.36 (Population std dev, ddof=0)
-  Total / Sum       : 69.6
+Column: Daily Study Hours
+  Count:    20
+  Mean:     3.48
+  Median:   3.35
+  Min:      1.0
+  Max:      6.0
+  Std Dev:  1.36
+  Total:    69.6
 
-Column: Attendance Percentage (0-100)
-  Count (N)         : 20
-  Mean (Average)    : 76.6
-  Median            : 78.25
-  Minimum           : 50.0
-  Maximum           : 95.0
-  Std Deviation     : 12.83 (Population std dev, ddof=0)
-  Total / Sum       : 1532.0
-
---------------------------------------------------------------------------------
+Column: Attendance Pct
+  Count:    20
+  Mean:     76.6
+  Median:   78.25
+  Min:      50.0
+  Max:      95.0
+  Std Dev:  12.83
+  Total:    1532.0
 
 3. CATEGORICAL FREQUENCY DISTRIBUTIONS
 --------------------------------------------------------------------------------
-A. Department Enrollment Distribution:
-   - Computer Science          :  5 students ( 25.0%)
-   - Information Technology    :  4 students ( 20.0%)
-   - Mechanical                :  4 students ( 20.0%)
-   - Electrical                :  4 students ( 20.0%)
-   - Civil                     :  3 students ( 15.0%)
+Departments:
+  Computer Science: 5
+  Information Technology: 4
+  Mechanical: 4
+  Electrical: 4
+  Civil: 3
 
-B. Academic Grade Distribution:
-   - Grade A (85-100)          :  5 students ( 25.0%)
-   - Grade B (70-84)           :  7 students ( 35.0%)
-   - Grade C (55-69)           :  4 students ( 20.0%)
-   - Grade D (40-54)           :  4 students ( 20.0%)
-   - Grade F (<40)             :  0 students (  0.0%)
+Grade Distribution:
+  Grade A (85-100): 5
+  Grade B (70-84): 7
+  Grade C (55-69): 4
+  Grade D (40-54): 4
+  Grade F (<40): 0
 
-C. Pass / Fail Status (Threshold >= 40):
-   - Passed                    : 20 students (100.0%)
-   - Failed                    :  0 students (  0.0%)
---------------------------------------------------------------------------------
+Pass/Fail:
+  Passed: 20
+  Failed: 0
 
-4. AUTOMATED ACADEMIC INSIGHTS & OBSERVATIONS
+4. AUTOMATED ACADEMIC INSIGHTS
 --------------------------------------------------------------------------------
-1. Cohort Performance: The batch has an overall pass rate of 100.0% (20 passed, 0 failed out of 20 students).
-2. Average Benchmark: Class average exam score is 71.6 (median: 74.0), with an average attendance of 76.6% and 3.48 daily study hours.
-3. Highest Scorer: Tanvi Deshmukh (S109) from Computer Science achieved the top score of 94.0.
-4. Lowest Scorer: Sneha Roy (S113) from Information Technology scored 40.0.
-5. Distinction Achievers: 5 student(s) achieved distinction marks (85% and above).
-6. Attendance Vigilance: 8 student(s) are currently below the standard 75% college attendance requirement.
-7. Academic Intervention: 3 student(s) require proactive mentorship due to low scores (<50) or critical attendance (<60%).
-8. Study Pattern Observation: Students studying 4.0 or more hours/day recorded an average score of 86.62, compared to 61.58 for those studying under 4.0 hours. (Note: Represents observed correlation within this cohort; does not imply single-factor causation).
---------------------------------------------------------------------------------
-End of Analysis Report. Generated by CSV Data Analyzer.
+1. Pass rate: 100.0% (20 passed, 0 failed out of 20 total students).
+2. Averages: Mean score is 71.6 (median: 74.0), attendance avg is 76.6%, and avg study hours is 3.48.
+3. Top Scorer: Tanvi Deshmukh (S109) from Computer Science with 94.0.
+4. Lowest Scorer: Sneha Roy (S113) from Information Technology with 40.0.
+5. Grade A: 5 student(s) got 85 or higher.
+6. Attendance warning: 8 student(s) below the 75% college requirement.
+7. Need help: 3 student(s) have low scores or attendance under 60%.
+8. Study hours vs scores: students studying 4+ hrs avg 86.62 vs 61.58 for under 4 hrs.
 ================================================================================

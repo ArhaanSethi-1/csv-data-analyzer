@@ -1,43 +1,10 @@
-# =============================================================================
-# CSV Data Analyzer - .gitignore
-# =============================================================================
-
-# Python Bytecode & Cache Files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-
-# Virtual Environments
-.venv/
 venv/
-ENV/
+.venv/
 env/
-env.bak/
-venv.bak/
-
-# IDE & Editor Configurations
-.idea/
 .vscode/
-*.sublime-project
-*.sublime-workspace
-.spyderproject
-.ropeproject
-
-# Operating System Files & Metadata
+.idea/
 .DS_Store
-Thumbs.db
-Desktop.ini
 *.tmp
-
-# Test & Coverage Outputs
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Local Environment Variables & Secrets
-.env
-.env.local
-
-# Note: The 'output/analysis_report.txt' is generated during program execution.
-# If you want to track a sample report in GitHub, keep it unignored.
