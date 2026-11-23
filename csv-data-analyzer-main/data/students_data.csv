@@ -2,24 +2,24 @@ student_id,name,department,study_hours,attendance_pct,exam_score
 S101,Aarav Sharma,Computer Science,4.5,88.0,85
 S102,Diya Patel,Information Technology,3.0,75.5,72
 S103,Rohan Verma,Mechanical,5.0,92.0,89
-S104,Ananya Iyer,Computer Science,2.5,68.0,60
-S105,Kavya Nair,Electrical,3.5,81.0,78
-S106,Ishaan Joshi,Civil,1.5,55.0,45
+S104,Kunal Ghosh,Civil,,72.0,65
+S105,Kavya Nair,Electrical ,3.5,81.0,78
+S106,Ishaan Joshi,civil,1.5,55.0,45
 S107,Meera Rao,Information Technology,4.0,84.5,82
 S108,Aditya Kulkarni,Mechanical,2.0,62.0,52
 S109,Tanvi Deshmukh,Computer Science,6.0,95.0,94
+S102,Diya Patel,Information Technology,3.0,75.5,72
 S110,Rahul Sen,Electrical,3.0,70.0,65
-S111,Pooja Hegde,Civil,2.5,74.0,68
-S112,Vikram Malhotra,Computer Science,5.5,90.5,91
-S113,Sneha Roy,Information Technology,1.0,50.0,40
-S114,Arjun Das,Mechanical,4.2,85.0,80
-S115,Rhea Kapoor,Civil,3.8,79.0,76
-S116,Manish Pandey,Electrical,4.8,87.0,84
-S117,Priya Menon,Computer Science,5.0,91.0,88
-S118,Siddharth Jain,Information Technology,2.8,69.0,62
-S119,Neha Gupta,Mechanical,3.2,77.5,71
-S120,Varun Bhat,Electrical,1.8,58.0,50
-S104,Ananya Iyer,Computer Science,2.5,68.0,60
-S121,Kunal Ghosh,Civil,,72.0,65
-S122,Simran Kaur,Mechanical,3.0,80.0,-15
-S123,Harsh Vardhan,Computer Science,4.0,,80
+S111,Simran Kaur,Mechanical,3.0,80.0,-15
+S112,Pooja Hegde,Civil,2.5,74.0,68
+S113,Vikram Malhotra,computer science,5.5,90.5,91
+S114,Sneha Roy,Information Technology,1.0,50.0,40
+S115,Arjun Das,Mechanical ,4.2,85.0,80
+S116,Harsh Vardhan,Computer Science,4.0,,80
+S117,Rhea Kapoor,Civil,3.8,79.0,76
+S118,Manish Pandey,Electrical,4.8,87.0,84
+S119,Priya Menon,Computer Science,5.0,91.0,88
+S120,Siddharth Jain,Information Technology,2.8,69.0,62
+S121,Neha Gupta,Mechanical,3.2,77.5,71
+S122,Varun Bhat,electrical,1.8,58.0,50
+S123,Ananya Iyer,Computer Science,2.5,68.0,60

@@ -1,12 +1,6 @@
 import csv
 import os
-
-# using numpy for stats if installed
-try:
-    import numpy as np
-    HAS_NUMPY = True
-except:
-    HAS_NUMPY = False
+import statistics
 
 REQUIRED_COLUMNS = ['student_id', 'name', 'department', 'study_hours', 'attendance_pct', 'exam_score']
 
@@ -25,16 +19,11 @@ def validate_csv_path(file_path):
 
 
 def load_dataset(file_path):
-    # check if path is good
     if not validate_csv_path(file_path):
         return None, None
 
     rows = []
     try:
-        if os.path.getsize(file_path) == 0:
-            print(f"[Error] The file '{file_path}' is completely empty (0 bytes).")
-            return None, None
-
         with open(file_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             headers = reader.fieldnames
@@ -43,7 +32,7 @@ def load_dataset(file_path):
                 return None, None
 
             missing_cols = [col for col in REQUIRED_COLUMNS if col not in headers]
-            if len(missing_cols) > 0:
+            if missing_cols:
                 print("[Error] CSV is missing required column(s):", ", ".join(missing_cols))
                 return None, None
 
@@ -51,11 +40,11 @@ def load_dataset(file_path):
                 if any(val.strip() for val in r.values() if val is not None):
                     rows.append(r)
 
-        if len(rows) == 0:
+        if not rows:
             print(f"[Warning] CSV file '{file_path}' contains headers but has no data rows.")
             return headers, []
 
-        print(f"-> Successfully loaded {len(rows)} raw rows from '{os.path.basename(file_path)}'.")
+        print(f"-> Loaded {len(rows)} rows from '{os.path.basename(file_path)}'.")
         return headers, rows
 
     except Exception as e:
@@ -65,106 +54,52 @@ def load_dataset(file_path):
 
 def clean_dataset(raw_rows):
     if not raw_rows:
-        return [], {
-            'raw_count': 0,
-            'clean_count': 0,
-            'duplicate_count': 0,
-            'missing_count': 0,
-            'invalid_count': 0,
-            'removed_records': []
-        }
+        return [], {'raw_count': 0, 'clean_count': 0, 'dropped_count': 0}
 
     clean_list = []
     seen_ids = set()
-    removed = []
-    dup_cnt = 0
-    missing_cnt = 0
-    invalid_cnt = 0
+    dropped = 0
 
-    line_num = 2
     for r in raw_rows:
         sid = r.get("student_id", "").strip()
 
-        # check missing
-        missing_fields = []
-        for col in REQUIRED_COLUMNS:
-            v = r.get(col)
-            if v is None or str(v).strip() == "":
-                missing_fields.append(col)
-
-        if len(missing_fields) > 0:
-            missing_cnt += 1
-            removed.append({
-                'csv_line': line_num,
-                'student_id': sid if sid else "UNKNOWN",
-                'reason': f"Missing value in column(s): {', '.join(missing_fields)}"
-            })
-            line_num += 1
+        # check duplicate or missing id
+        if not sid or sid in seen_ids:
+            dropped += 1
             continue
 
-        # check numeric conversion
+        # check if any required field is empty
+        if any(not str(r.get(col, '')).strip() for col in REQUIRED_COLUMNS):
+            dropped += 1
+            continue
+
+        # parse numbers and range check
         try:
             hours = float(r["study_hours"])
             att = float(r["attendance_pct"])
             score = float(r["exam_score"])
-        except:
-            invalid_cnt += 1
-            removed.append({
-                'csv_line': line_num,
-                'student_id': sid,
-                'reason': "Non-numeric value in numerical column(s)"
-            })
-            line_num += 1
+        except Exception:
+            dropped += 1
             continue
 
-        # range checking
-        errs = []
-        if hours < 0.0 or hours > 24.0:
-            errs.append(f"study_hours ({hours}) out of range [0, 24]")
-        if att < 0.0 or att > 100.0:
-            errs.append(f"attendance_pct ({att}) out of range [0, 100]")
-        if score < 0.0 or score > 100.0:
-            errs.append(f"exam_score ({score}) out of range [0, 100]")
-
-        if len(errs) > 0:
-            invalid_cnt += 1
-            removed.append({
-                'csv_line': line_num,
-                'student_id': sid,
-                'reason': "Boundary violation: " + "; ".join(errs)
-            })
-            line_num += 1
-            continue
-
-        # duplicate student id check - keep first one
-        if sid in seen_ids:
-            dup_cnt += 1
-            removed.append({
-                'csv_line': line_num,
-                'student_id': sid,
-                'reason': f"Duplicate student ID '{sid}' (first valid entry already kept)"
-            })
-            line_num += 1
+        if not (0.0 <= hours <= 24.0 and 0.0 <= att <= 100.0 and 0.0 <= score <= 100.0):
+            dropped += 1
             continue
 
         seen_ids.add(sid)
         clean_list.append({
             'student_id': sid,
-            'name': str(r['name']).strip(),
-            'department': str(r['department']).strip(),
+            'name': r['name'].strip(),
+            'department': r['department'].strip(),
             'study_hours': round(hours, 2),
             'attendance_pct': round(att, 2),
             'exam_score': round(score, 2)
         })
-        line_num += 1
 
     summary = {
         'raw_count': len(raw_rows),
         'clean_count': len(clean_list),
-        'duplicate_count': dup_cnt,
-        'missing_count': missing_cnt,
-        'invalid_count': invalid_cnt,
-        'removed_records': removed
+        'dropped_count': dropped
     }
     return clean_list, summary
 
@@ -175,7 +110,7 @@ def extract_numeric_column(data, column_name):
         if column_name in row and row[column_name] is not None:
             try:
                 vals.append(float(row[column_name]))
-            except:
+            except Exception:
                 pass
     return vals
 
@@ -185,42 +120,15 @@ def calculate_numeric_stats(data, column_name):
     if not vals:
         return None
 
-    if HAS_NUMPY:
-        arr = np.array(vals, dtype=float)
-        return {
-            'column': column_name,
-            'count': int(len(arr)),
-            'mean': round(float(np.mean(arr)), 2),
-            'median': round(float(np.median(arr)), 2),
-            'min': round(float(np.min(arr)), 2),
-            'max': round(float(np.max(arr)), 2),
-            'std_dev': round(float(np.std(arr, ddof=0)), 2),
-            'total': round(float(np.sum(arr)), 2)
-        }
-
-    # fallback without numpy
-    n = len(vals)
-    tot = sum(vals)
-    avg = tot / n
-
-    s = sorted(vals)
-    if n % 2 != 0:
-        med = s[n // 2]
-    else:
-        med = (s[n // 2 - 1] + s[n // 2]) / 2.0
-
-    var = sum((x - avg) ** 2 for x in vals) / n
-    sd = var ** 0.5
-
     return {
         'column': column_name,
-        'count': n,
-        'mean': round(avg, 2),
-        'median': round(med, 2),
+        'count': len(vals),
+        'mean': round(statistics.mean(vals), 2),
+        'median': round(statistics.median(vals), 2),
         'min': round(min(vals), 2),
         'max': round(max(vals), 2),
-        'std_dev': round(sd, 2),
-        'total': round(tot, 2)
+        'std_dev': round(statistics.pstdev(vals), 2),
+        'total': round(sum(vals), 2)
     }
 
 
@@ -231,8 +139,8 @@ def get_all_numeric_columns():
 def calculate_frequency(data, column_name):
     freq = {}
     for r in data:
-        dept = r.get(column_name, 'Unknown')
-        freq[dept] = freq.get(dept, 0) + 1
+        val = r.get(column_name, 'Unknown')
+        freq[val] = freq.get(val, 0) + 1
     return freq
 
 
@@ -260,13 +168,8 @@ def calculate_grade_distribution(data):
 
 
 def calculate_pass_fail_distribution(data, passing_mark=40.0):
-    pf = {'Passed': 0, 'Failed': 0}
-    for r in data:
-        if r.get('exam_score', 0) >= passing_mark:
-            pf['Passed'] += 1
-        else:
-            pf['Failed'] += 1
-    return pf
+    passed = sum(1 for r in data if r.get('exam_score', 0) >= passing_mark)
+    return {'Passed': passed, 'Failed': len(data) - passed}
 
 
 def generate_insights(data):
@@ -274,13 +177,8 @@ def generate_insights(data):
         return ["No data available to generate insights."]
 
     total = len(data)
-    best = data[0]
-    worst = data[0]
-    for s in data[1:]:
-        if s['exam_score'] > best['exam_score']:
-            best = s
-        if s['exam_score'] < worst['exam_score']:
-            worst = s
+    best = max(data, key=lambda s: s['exam_score'])
+    worst = min(data, key=lambda s: s['exam_score'])
 
     pf = calculate_pass_fail_distribution(data, passing_mark=40.0)
     passed = pf['Passed']
@@ -301,7 +199,7 @@ def generate_insights(data):
     att_st = calculate_numeric_stats(data, 'attendance_pct')
     study_st = calculate_numeric_stats(data, 'study_hours')
 
-    res = [
+    return [
         f"1. Pass rate: {pct_pass}% ({passed} passed, {failed} failed out of {total} total students).",
         f"2. Averages: Mean score is {score_st['mean']} (median: {score_st['median']}), attendance avg is {att_st['mean']}%, and avg study hours is {study_st['mean']}.",
         f"3. Top Scorer: {best['name']} ({best['student_id']}) from {best['department']} with {best['exam_score']}.",
@@ -311,7 +209,6 @@ def generate_insights(data):
         f"7. Need help: {len(struggling)} student(s) have low scores or attendance under 60%.",
         f"8. Study hours vs scores: students studying 4+ hrs avg {avg_high} vs {avg_low} for under 4 hrs."
     ]
-    return res
 
 
 def display_dataset_info(file_path, headers, raw_count, clean_count):
@@ -319,10 +216,9 @@ def display_dataset_info(file_path, headers, raw_count, clean_count):
     print("        DATASET INFO")
     print("=" * 40)
     print("File:", file_path)
-    print("Engine:", "NumPy" if HAS_NUMPY else "Standard Python")
     print("Raw rows:", raw_count)
     print("Clean rows:", clean_count)
-    print("Removed:", raw_count - clean_count)
+    print("Dropped rows:", raw_count - clean_count)
     print("\nColumns found:")
     print("-" * 35)
     for col in headers:
@@ -389,24 +285,13 @@ def display_frequency_table(freq_dict, category_name):
 
 
 def display_cleaning_summary(summary):
-    print("\n" + "=" * 45)
+    print("\n" + "=" * 40)
     print("       CLEANING SUMMARY")
-    print("=" * 45)
-    print("Total rows read:     ", summary['raw_count'])
-    print("Valid rows kept:     ", summary['clean_count'])
-    print("Invalid rows dropped:", summary['raw_count'] - summary['clean_count'])
-    print(" - Duplicates:       ", summary['duplicate_count'])
-    print(" - Missing fields:   ", summary['missing_count'])
-    print(" - Out of range:     ", summary['invalid_count'])
-    print("-" * 45)
-
-    if summary['removed_records']:
-        print("Dropped rows detail:")
-        for itm in summary['removed_records']:
-            print(f"  Line {itm['csv_line']} (ID: {itm['student_id']}): {itm['reason']}")
-    else:
-        print("No rows had to be removed!")
-    print("=" * 45)
+    print("=" * 40)
+    print("Total rows read: ", summary['raw_count'])
+    print("Valid rows kept: ", summary['clean_count'])
+    print("Rows dropped:    ", summary['dropped_count'])
+    print("=" * 40)
 
 
 def export_analysis_report(file_path, cleaned_data, raw_data_count, cleaning_summary, output_path):
@@ -416,37 +301,19 @@ def export_analysis_report(file_path, cleaned_data, raw_data_count, cleaning_sum
             os.makedirs(out_folder, exist_ok=True)
 
         lines = [
-            "================================================================================",
-            "                CSV DATA ANALYZER - ACADEMIC ANALYSIS REPORT",
-            "================================================================================",
-            f"File: {os.path.basename(file_path)}",
-            f"Author: Arhaan Sethi",
-            f"Engine: {'NumPy' if HAS_NUMPY else 'Python stdlib'}",
+            "=" * 60,
+            f"Analysis Report for: {os.path.basename(file_path)}",
+            "=" * 60,
             "",
-            "1. DATA CLEANING AUDIT",
-            "--------------------------------------------------------------------------------",
-            f"Raw Records: {raw_data_count}",
-            f"Clean Records: {cleaning_summary['clean_count']}",
-            f"Excluded: {raw_data_count - cleaning_summary['clean_count']}",
-            f"  - Duplicates: {cleaning_summary['duplicate_count']}",
-            f"  - Missing: {cleaning_summary['missing_count']}",
-            f"  - Out of range / invalid: {cleaning_summary['invalid_count']}",
+            "1. DATA CLEANING",
+            "-" * 50,
+            f"Total rows read: {raw_data_count}",
+            f"Clean rows kept: {cleaning_summary['clean_count']}",
+            f"Rows dropped:    {cleaning_summary['dropped_count']}",
             "",
-            "Excluded Records Detail:"
+            "2. NUMERICAL STATISTICS",
+            "-" * 50
         ]
-
-        if cleaning_summary['removed_records']:
-            for itm in cleaning_summary['removed_records']:
-                lines.append(f"  * [CSV Line {itm['csv_line']}] ID: {itm['student_id']} -> {itm['reason']}")
-        else:
-            lines.append("  * None.")
-
-        lines.extend([
-            "--------------------------------------------------------------------------------",
-            "",
-            "2. NUMERICAL DESCRIPTIVE STATISTICS",
-            "--------------------------------------------------------------------------------"
-        ])
 
         col_tuples = [
             ('exam_score', 'Exam Score'),
@@ -467,8 +334,8 @@ def export_analysis_report(file_path, cleaned_data, raw_data_count, cleaning_sum
                 lines.append("")
 
         lines.extend([
-            "3. CATEGORICAL FREQUENCY DISTRIBUTIONS",
-            "--------------------------------------------------------------------------------",
+            "3. CATEGORICAL DISTRIBUTIONS",
+            "-" * 50,
             "Departments:"
         ])
         dept_f = calculate_frequency(cleaned_data, 'department')
@@ -487,18 +354,18 @@ def export_analysis_report(file_path, cleaned_data, raw_data_count, cleaning_sum
 
         lines.extend([
             "",
-            "4. AUTOMATED ACADEMIC INSIGHTS",
-            "--------------------------------------------------------------------------------"
+            "4. KEY INSIGHTS",
+            "-" * 50
         ])
         for ins in generate_insights(cleaned_data):
             lines.append(ins)
 
-        lines.append("================================================================================")
+        lines.append("=" * 60)
 
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write("\n".join(lines) + "\n")
 
-        print(f"\n[Success] Full report exported successfully to: '{output_path}'")
+        print(f"\n[Success] Report saved to: '{output_path}'")
         return True
 
     except Exception as e:
@@ -515,7 +382,7 @@ def handle_numeric_stats_menu(cleaned_data):
         print("4. Compare all columns")
         print("5. Back")
 
-        opt = input("Pick an option (1-5): ").strip()
+        opt = input("Enter choice (1-5): ").strip()
         if opt == '1':
             st = calculate_numeric_stats(cleaned_data, 'exam_score')
             display_stats(st, "Exam Score")
@@ -530,7 +397,7 @@ def handle_numeric_stats_menu(cleaned_data):
         elif opt == '5':
             break
         else:
-            print("Invalid input, enter 1 to 5")
+            print("Invalid choice, please try again.")
 
 
 def handle_frequency_menu(cleaned_data):
@@ -542,7 +409,7 @@ def handle_frequency_menu(cleaned_data):
         print("4. Show all")
         print("5. Back to main menu")
 
-        opt = input("Choose (1-5): ").strip()
+        opt = input("Enter choice (1-5): ").strip()
         if opt == '1':
             display_frequency_table(calculate_frequency(cleaned_data, 'department'), "Department")
         elif opt == '2':
@@ -556,7 +423,7 @@ def handle_frequency_menu(cleaned_data):
         elif opt == '5':
             break
         else:
-            print("Wrong option, try again")
+            print("Invalid choice, please try again.")
 
 
 def run_cli(cleaned_data, raw_data, headers, file_path, cleaning_summary):
@@ -597,7 +464,7 @@ def run_cli(cleaned_data, raw_data, headers, file_path, cleaning_summary):
             print("\nBye!")
             break
         else:
-            print("Please enter a number between 1 and 8.")
+            print("Invalid choice, please try again.")
 
 
 def main():

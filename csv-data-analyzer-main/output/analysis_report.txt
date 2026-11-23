@@ -1,28 +1,15 @@
-================================================================================
-                CSV DATA ANALYZER - ACADEMIC ANALYSIS REPORT
-================================================================================
-File: students_data.csv
-Author: Arhaan Sethi
-Engine: Python stdlib
+============================================================
+Analysis Report for: students_data.csv
+============================================================
 
-1. DATA CLEANING AUDIT
---------------------------------------------------------------------------------
-Raw Records: 24
-Clean Records: 20
-Excluded: 4
-  - Duplicates: 1
-  - Missing: 2
-  - Out of range / invalid: 1
+1. DATA CLEANING
+--------------------------------------------------
+Total rows read: 24
+Clean rows kept: 20
+Rows dropped:    4
 
-Excluded Records Detail:
-  * [CSV Line 22] ID: S104 -> Duplicate student ID 'S104' (first valid entry already kept)
-  * [CSV Line 23] ID: S121 -> Missing value in column(s): study_hours
-  * [CSV Line 24] ID: S122 -> Boundary violation: exam_score (-15.0) out of range [0, 100]
-  * [CSV Line 25] ID: S123 -> Missing value in column(s): attendance_pct
---------------------------------------------------------------------------------
-
-2. NUMERICAL DESCRIPTIVE STATISTICS
---------------------------------------------------------------------------------
+2. NUMERICAL STATISTICS
+--------------------------------------------------
 Column: Exam Score
   Count:    20
   Mean:     71.6
@@ -50,14 +37,17 @@ Column: Attendance Pct
   Std Dev:  12.83
   Total:    1532.0
 
-3. CATEGORICAL FREQUENCY DISTRIBUTIONS
---------------------------------------------------------------------------------
+3. CATEGORICAL DISTRIBUTIONS
+--------------------------------------------------
 Departments:
-  Computer Science: 5
+  Computer Science: 4
   Information Technology: 4
   Mechanical: 4
-  Electrical: 4
-  Civil: 3
+  Electrical: 3
+  civil: 1
+  Civil: 2
+  computer science: 1
+  electrical: 1
 
 Grade Distribution:
   Grade A (85-100): 5
@@ -70,14 +60,14 @@ Pass/Fail:
   Passed: 20
   Failed: 0
 
-4. AUTOMATED ACADEMIC INSIGHTS
---------------------------------------------------------------------------------
+4. KEY INSIGHTS
+--------------------------------------------------
 1. Pass rate: 100.0% (20 passed, 0 failed out of 20 total students).
 2. Averages: Mean score is 71.6 (median: 74.0), attendance avg is 76.6%, and avg study hours is 3.48.
 3. Top Scorer: Tanvi Deshmukh (S109) from Computer Science with 94.0.
-4. Lowest Scorer: Sneha Roy (S113) from Information Technology with 40.0.
+4. Lowest Scorer: Sneha Roy (S114) from Information Technology with 40.0.
 5. Grade A: 5 student(s) got 85 or higher.
 6. Attendance warning: 8 student(s) below the 75% college requirement.
 7. Need help: 3 student(s) have low scores or attendance under 60%.
 8. Study hours vs scores: students studying 4+ hrs avg 86.62 vs 61.58 for under 4 hrs.
-================================================================================
+============================================================
